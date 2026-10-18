@@ -86,7 +86,7 @@ class Triangle
 {
   public:
   Vector3 one, two, three;
-  int r,g,b;
+  Vector3 r, g, b;
 };
 
 int main()
@@ -109,11 +109,16 @@ int main()
   /// The 1d array for storing the pixel we have generated
   unsigned char pixels[w * h * 3];
   
-  Triangle triangle = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{.6, -1, 0}};
-  Triangle triangle2 = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{-.25, -.25, 0}};
-  Triangle triangle3 = Triangle{Vector3{0.6, -.25, 0}, Vector3{.20, .25, 0}, Vector3{-.25, -.25, 0}};
+  Triangle triangle1 = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{.6, -1, 0},
+                                Vector3{200, 20, 120}, Vector3{10, 230, 143}, Vector3{0, 200, 100}};
 
-  list<Triangle> triangles = {triangle, triangle2, triangle3};
+  Triangle triangle2 = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{-.25, -.25, 0},
+                                Vector3{100, 10, 255}, Vector3{255, 0, 23}, Vector3{0, 13, 100}};
+
+  Triangle triangle3 = Triangle{Vector3{0.6, -.25, 0}, Vector3{.20, .25, 0}, Vector3{-.25, -.25, 0}};
+                                Vector3{255, 0, 0}, Vector3{0, 255, 0}, Vector3{0, 0, 255};
+
+  list<Triangle> triangles = {triangle1, triangle2, triangle3};
 
   Vector3 background_color = Vector3{120, 81, 169};
 
@@ -149,6 +154,7 @@ int main()
 
       Vector3 ray = (target - camera_orgin).normalize();
 
+      ///loop over each triangle
       for (Triangle triangle : triangles){
         Vector3 edge_one = triangle.one - triangle.two;
         Vector3 edge_two = triangle.three - triangle.two;
@@ -181,13 +187,14 @@ int main()
         if(diff > 0.00001)
         {
           //I'm not in the triangle
+          
         }
         else
         {
           //I'm in the triangle
-          r = 10 * u + 128 * v + 255 * a;
-          g = 200 * u + 255 * v + 0 * a;
-          b = 255 * u + 50 * v + 0 * a;
+          r = triangle.r.x * u + triangle.r.y * v + triangle.r.z * a;
+          g = triangle.g.x * u + triangle.g.y * v + triangle.g.z * a;
+          b = triangle.b.x * u + triangle.b.y * v + triangle.b.z * a;
         }
 
         /// Assign the r, g, and b values to the pixel at index
