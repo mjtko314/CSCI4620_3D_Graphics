@@ -109,9 +109,11 @@ int main()
   /// The 1d array for storing the pixel we have generated
   unsigned char pixels[w * h * 3];
   
-  Triangle triangle = Triangle{Vector3{0.5, 1, 0}, Vector3{-1, -1, 0}, Vector3{1, -1, 0}};
-  Triangle triangle2 = Triangle{Vector3{1, 1, 0}, Vector3{-1, -1, 0}, Vector3{1, -1, 0}};
-  list<Triangle> triangles = {triangle, triangle2};
+  Triangle triangle = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{.6, -1, 0}};
+  Triangle triangle2 = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{-.25, -.25, 0}};
+  Triangle triangle3 = Triangle{Vector3{0.6, -.25, 0}, Vector3{.20, .25, 0}, Vector3{-.25, -.25, 0}};
+
+  list<Triangle> triangles = {triangle, triangle2, triangle3};
 
   Vector3 background_color = Vector3{120, 81, 169};
 
@@ -183,9 +185,9 @@ int main()
         else
         {
           //I'm in the triangle
-          r = 0 * u + 0 * v + 0 * a;
-          g = 0 * u + 255 * v + 0 * a;
-          b = 255 * u + 0 * v + 0 * a;
+          r = 10 * u + 128 * v + 255 * a;
+          g = 200 * u + 255 * v + 0 * a;
+          b = 255 * u + 50 * v + 0 * a;
         }
 
         /// Assign the r, g, and b values to the pixel at index
