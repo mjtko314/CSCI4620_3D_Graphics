@@ -115,8 +115,8 @@ int main()
   Triangle triangle2 = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{-.25, -.25, 0},
                                 Vector3{100, 10, 255}, Vector3{255, 0, 23}, Vector3{0, 13, 100}};
 
-  Triangle triangle3 = Triangle{Vector3{0.6, -.25, 0}, Vector3{.20, .25, 0}, Vector3{-.25, -.25, 0}};
-                                Vector3{255, 0, 0}, Vector3{0, 255, 0}, Vector3{0, 0, 255};
+  Triangle triangle3 = Triangle{Vector3{0.6, -.25, 0}, Vector3{.20, .25, 0}, Vector3{-.25, -.25, 0},
+                                Vector3{255, 0, 0}, Vector3{0, 255, 0}, Vector3{0, 0, 255}};
 
   list<Triangle> triangles = {triangle1, triangle2, triangle3};
 
