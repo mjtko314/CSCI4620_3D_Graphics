@@ -1,4 +1,5 @@
 /// Include the image write library and enable it
+#include <ostream>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #include <vector>
@@ -32,7 +33,7 @@ int main()
   unsigned char pixels[w * h * 3];
 
   ///Parse Obj File
-  string file = "Untitled.obj";
+  string file = "untitled.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<string>> vectors = {};
@@ -65,14 +66,23 @@ int main()
   }
 
   //setup faces
-  for (string* face : faces){
+  vector<vector<string>> processedFaces = {};
+  for (const vector<string> line : faces){
+    for(int i = 1; i < line.size(); i++ ){
+      processedFaces.push_back(split(line[i], '/'));
     
   }
 
-
-
-
+  //Create Triangles
   vector<Triangle> triangles = {};
+  
+  for (vector<string> face : processedFaces)
+  {
+    vector<Vector3> triangle = {};
+    vector<string> targetVector = vectors[stoi(face[0]) - 1];
+    triangle.push_back(Vector3(stof(targetVector[0]), stof(targetVector[1]), stof(targetVector[2])));
+  }
+
 
   Vector3 background_color = Vector3{120, 81, 169};
 
