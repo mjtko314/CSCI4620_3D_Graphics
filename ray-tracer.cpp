@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Vector3.hpp"
 #include "Triangle.hpp"
+#include "file_util.h"
 
 using namespace std;
 
@@ -30,16 +31,48 @@ int main()
   /// The 1d array for storing the pixel we have generated
   unsigned char pixels[w * h * 3];
 
-  Triangle triangle1 = Triangle{Vector3{0.6, -.25, 0}, Vector3{-.25, -1, 0}, Vector3{.6, -1, 0},
-                                Vector3{200, 20, 120}, Vector3{10, 230, 143}, Vector3{0, 200, 100}};
+  ///Parse Obj File
+  string file = "Untitled.obj";
+  vector<string> lines = readLines(file);
 
-  Triangle triangle2 = Triangle{Vector3{0.6, -.25, .5}, Vector3{-.25, -1, -.5}, Vector3{-.25, -.25, .5},
-                                Vector3{100, 10, 255}, Vector3{255, 0, 23}, Vector3{0, 13, 100}};
+  vector<vector<string>> vectors = {};
+  vector<vector<string>> uv = {};
+  vector<vector<string>> normals = {};
+  vector<vector<string>> faces = {};
 
-  ///Triangle triangle3 = Triangle{Vector3{0.6, -.25, 0}, Vector3{.20, .25, 0}, Vector3{-.25, -.25, 0},
-  ///                              Vector3{255, 0, 0}, Vector3{0, 255, 0}, Vector3{0, 0, 255}};
+  int index = 0;
+  vector<vector<string>> splitLines;
 
-  vector<Triangle> triangles = {triangle1, triangle2};
+  //split each line
+  for (const string& line : lines) {
+    index = 0;
+    vector<string> splitLine = split(line, ' ');
+    splitLines.push_back(splitLine);
+  }
+
+  //sort obj file
+  for (vector<string>& line : splitLines){
+    if(line.front() == "v")
+      vectors.push_back(line);
+    else if (line.front() == "vt")
+      uv.push_back(line);
+    else if (line.front() == "vn")
+      normals.push_back(line);
+    else if (line.front() == "f")
+      faces.push_back(line);
+    else
+      continue;
+  }
+
+  //setup faces
+  for (string* face : faces){
+    
+  }
+
+
+
+
+  vector<Triangle> triangles = {};
 
   Vector3 background_color = Vector3{120, 81, 169};
 
@@ -117,9 +150,9 @@ int main()
           // I'm in the triangle
           closest_t = t;
 
-          r = triangle.r.x * u + triangle.r.y * v + triangle.r.z * a;
-          g = triangle.g.x * u + triangle.g.y * v + triangle.g.z * a;
-          b = triangle.b.x * u + triangle.b.y * v + triangle.b.z * a;
+          r = 0 * u + 0 * v + 255 * a;
+          g = 0 * u + 255 * v + 0 * a;
+          b = 255 * u + 0 * v + 0 * a;
         }
 
         /// Assign the r, g, and b values to the pixel at index

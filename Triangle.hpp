@@ -7,7 +7,6 @@ class Triangle
 {
   public:
   Vector3 one, two, three;
-  Vector3 r, g, b;
 };
 
 #endif
