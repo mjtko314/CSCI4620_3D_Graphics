@@ -78,9 +78,14 @@ int main()
   
   for (vector<string> face : processedFaces)
   {
-    vector<Vector3> triangle = {};
-    vector<string> targetVector = vectors[stoi(face[0]) - 1];
-    triangle.push_back(Vector3(stof(targetVector[0]), stof(targetVector[1]), stof(targetVector[2])));
+    Triangle triangle;
+    vector<Vector3> triangleVectors;
+    for (int i = 0; i < 2; i++){
+      vector<string> targetVector = vectors[stoi(face[i]) - 1];
+      triangleVectors.push_back(Vector3{stof(targetVector[1]), stof(targetVector[2]), stof(targetVector[3])});
+    }
+    triangle = Triangle{triangleVectors[0], triangleVectors[1], triangleVectors[2]};
+    triangles.push_back(triangle);
   }
 
 
@@ -176,4 +181,5 @@ int main()
   /// Write the final image as a png
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
   return 0;
+}
 }
