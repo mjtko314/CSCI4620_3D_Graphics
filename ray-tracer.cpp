@@ -67,11 +67,13 @@ int main()
 
   //setup faces
   vector<vector<string>> processedFaces = {};
+
   for (const vector<string> line : faces){
     for(int i = 1; i < line.size(); i++ ){
-      processedFaces.push_back(split(line[i], '/'));
-    
+      processedFaces.push_back(split(line[i], '/'));  
   }
+
+  cout << processedFaces[2][0] << endl;
 
   //Create Triangles
   vector<Triangle> triangles = {};
@@ -79,12 +81,25 @@ int main()
   for (vector<string> face : processedFaces)
   {
     Triangle triangle;
-    vector<Vector3> triangleVectors;
-    for (int i = 0; i < 2; i++){
-      vector<string> targetVector = vectors[stoi(face[i]) - 1];
-      triangleVectors.push_back(Vector3{stof(targetVector[1]), stof(targetVector[2]), stof(targetVector[3])});
-    }
-    triangle = Triangle{triangleVectors[0], triangleVectors[1], triangleVectors[2]};
+    triangle.v_1 = Vector3(stof(vectors[stoi(processedFaces[0][0]) - 1][0]),
+                           stof(vectors[stoi(processedFaces[0][0]) - 1][1]),
+                           stof(vectors[stoi(processedFaces[0][0]) - 1][2]));
+
+    triangle.v_2 = Vector3(stof(vectors[stoi(processedFaces[1][0]) - 1][0]),
+                           stof(vectors[stoi(processedFaces[1][0]) - 1][1]),
+                           stof(vectors[stoi(processedFaces[1][0]) - 1][2]));
+
+    triangle.v_3 = Vector3(stof(vectors[stoi(processedFaces[2][0]) - 1][0]),
+                           stof(vectors[stoi(processedFaces[2][0]) - 1][1]),
+                           stof(vectors[stoi(processedFaces[2][0]) - 1][2]));
+
+    triangle.vt_1;
+    triangle.vt_2;
+    triangle.vt_3;
+    triangle.vn_1;
+    triangle.vn_2;
+    triangle.vn_2;
+    
     triangles.push_back(triangle);
   }
 
@@ -125,11 +140,11 @@ int main()
       /// loop over each triangle
       for (const Triangle &triangle : triangles)
       {
-        Vector3 edge_one = triangle.one - triangle.two;
-        Vector3 edge_two = triangle.three - triangle.two;
+        Vector3 edge_one = triangle.v_1 - triangle.v_2;
+        Vector3 edge_two = triangle.v_3 - triangle.v_2;
         Vector3 p = edge_two.cross(edge_one);
         Vector3 abc = p.normalize();
-        float d = -abc.dot(triangle.one);
+        float d = -abc.dot(triangle.v_1);
 
         float t = -(abc.dot(camera_orgin) + d) / abc.dot(ray);
 
@@ -138,9 +153,9 @@ int main()
 
         Vector3 collision_point = ray * t + camera_orgin;
 
-        Vector3 minus_one = collision_point - triangle.one;
-        Vector3 minus_two = collision_point - triangle.two;
-        Vector3 minus_three = collision_point - triangle.three;
+        Vector3 minus_one = collision_point - triangle.v_1;
+        Vector3 minus_two = collision_point - triangle.v_2;
+        Vector3 minus_three = collision_point - triangle.v_3;
 
         float triangle_area = p.length() / 2;
 
