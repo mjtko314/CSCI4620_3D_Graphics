@@ -1,4 +1,5 @@
 /// Include the image write library and enable it
+#include <cmath>
 #include <ostream>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -53,10 +54,65 @@ using namespace std;
 
   Vector3 background_color = Vector3{0, 0, 0};
 
-  Vector3 trace_ray(Vector3 orgin, Vector3 direction )
+
+  float trace_ray_distance(Vector3 orgin, Vector3 direction )
   {
-    /// loop over each triangle
-    float closest_t = .000001;
+    float closest_t = INFINITY;
+    
+      for (const Triangle &triangle : triangles)
+      {
+        Vector3 edge_one = triangle.v_1 - triangle.v_2;
+        Vector3 edge_two = triangle.v_3 - triangle.v_2;
+        Vector3 p = edge_two.cross(edge_one);
+        Vector3 abc = p.normalize();
+        float d = -abc.dot(triangle.v_1);
+
+        float t = -(abc.dot(orgin) + d) / abc.dot(direction);
+
+        if(t > closest_t || t <= 0)
+          continue;
+
+        Vector3 collision_point = direction * t + orgin;
+
+        Vector3 minus_one = collision_point - triangle.v_1;
+        Vector3 minus_two = collision_point - triangle.v_2;
+        Vector3 minus_three = collision_point - triangle.v_3;
+
+        float triangle_area = p.length() / 2;
+
+        float area_one = minus_two.cross(minus_three).length() / 2;
+        float area_two = minus_three.cross(minus_one).length() / 2;
+        float area_three = minus_one.cross(minus_two).length() / 2;
+
+        float u = area_one / triangle_area;
+        float v = area_two / triangle_area;
+        float a = area_three / triangle_area;
+
+        float sum = u + v + a;
+
+        float diff = abs(1 - sum);
+
+        if (diff > 0.00001 || isnan(sum))
+        {
+          // I'm not in the triangle
+        }
+        else
+        {
+          // I'm in the triangle
+          closest_t = t;
+        }
+      }
+      return closest_t;
+    }
+
+  Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 2 )
+  {
+    Vector3 color = Vector3{background_color.x, background_color.y, background_color.z};
+    if(bounces <= 0)
+      return background_color;
+
+    float closest_t = 1000000;
+    
       for (const Triangle &triangle : triangles)
       {
         Vector3 edge_one = triangle.v_1 - triangle.v_2;
@@ -108,13 +164,22 @@ using namespace std;
           float strength = max(0.0f, light_direction.dot(normal));
 
           Vector3 diffuse = base_color * strength;
+
+
           Vector3 refelctive = Vector3{0,0,0};
+
+          if(true){
+            Vector3 refelctive_distance = direction - normal * 2 * normal.dot(direction);
+            diffuse *= .5;
+            ambient *= .5;
+          }
 
           Vector3 _color = ambient + diffuse + refelctive;
           color = _color;
         }
-        return color;
+        
       }
+      return color;
   }
 
 int main()
@@ -245,6 +310,10 @@ int main()
       Vector3 ray = (target - camera_orgin).normalize();
 
       Vector3 color = trace_ray(camera_orgin, ray);
+
+      r = color.x;
+      g = color.y;
+      b = color.z;
 
         /// Assign the r, g, and b values to the pixel at index
         pixels[index] = r;
