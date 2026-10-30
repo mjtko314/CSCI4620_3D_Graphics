@@ -166,7 +166,7 @@ int main()
   cout << temp << endl;
 
   ///Parse Obj File
-  string file = "Suzanne.obj";
+  string file = "cube2.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<float>> vectors = {};
@@ -226,13 +226,14 @@ int main()
   for (const vector<string> line : faces){
     for(int i = 1; i < line.size(); i++ ){
       processedFaces.push_back(split(line[i], '/'));  
+    }
   }
 
   cout << processedFaces[2][0] << endl;
 
   //Create Triangles
   
-  
+  std::cout << "Vector length: " << processedFaces.size() << std::endl;
   for (vector<string> face : processedFaces)
   {
     Triangle triangle;
@@ -274,6 +275,7 @@ int main()
     
     triangles.push_back(triangle);
   }
+   std::cout << "Triangles: " << triangles.size() << std::endl;
 
   Vector3 camera_orgin = Vector3{0, 0, 1};
   Vector3 camera_lookat = Vector3{0, 0, 0};
@@ -319,5 +321,4 @@ int main()
   /// Write the final image as a png
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
   return 0;
-}
 }
