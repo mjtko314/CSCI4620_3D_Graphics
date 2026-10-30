@@ -24,36 +24,8 @@ using namespace std;
   /// The 1d array for storing the pixel we have generated
   unsigned char pixels[w * h * 3];
 
- //Cornell Box
- // Left Wall
-  Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
-  Triangle triangle02 = Triangle{Vector3{-1, 1, -1}, Vector3{-1, -1, -1}, Vector3{-1, -1, -2}};
-
-  // Right Wall
-  Triangle triangle03 = Triangle{Vector3{1, 1, -1}, Vector3{1, 1, -2}, Vector3{1, -1, -2}};
-  Triangle triangle04 = Triangle{Vector3{1, -1, -1}, Vector3{1, 1, -1}, Vector3{1, -1, -2}};
-
-  // Top Wall
-  Triangle triangle05 = Triangle{Vector3{-1, 1, -1}, Vector3{-1, 1, -2}, Vector3{1, 1, -2}};
-  Triangle triangle06 = Triangle{Vector3{1, 1, -1}, Vector3{-1, 1, -1}, Vector3{1, 1, -2}};
-
-  // Bottom Wall
-  Triangle triangle07 = Triangle{Vector3{-1, -1, -2}, Vector3{-1, -1, -1}, Vector3{1, -1, -2}};
-  Triangle triangle08 = Triangle{Vector3{-1, -1, -1}, Vector3{1, -1, -1}, Vector3{1, -1, -2}};
-
-  // Back Wall
-  Triangle triangle09 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, -1, -2}, Vector3{1, -1, -2}};
-  Triangle triangle10 = Triangle{Vector3{1, 1, -2}, Vector3{-1, 1, -2}, Vector3{1, -1, -2}};
-
-  vector<Triangle> triangles = {
-      triangle01, triangle02,
-      triangle03, triangle04,
-      triangle05, triangle06,
-      triangle07, triangle08,
-      triangle09, triangle10};
-
-  Vector3 background_color = Vector3{0, 0, 0};
-
+  Vector3 background_color = Vector3{0, 20, 0};
+  vector<Triangle> triangles = {};
 
   float trace_ray_distance(Vector3 orgin, Vector3 direction )
   {
@@ -155,7 +127,7 @@ using namespace std;
           // I'm in the triangle
           closest_t = t;
 
-          Vector3 base_color = Vector3{255, 255, 255};
+          Vector3 base_color = Vector3{255, 0, 0};
           Vector3 light_direction = Vector3{.5, 1, .1}.normalize();
 
           Vector3 ambient = base_color * .1;
@@ -193,93 +165,115 @@ int main()
 
   cout << temp << endl;
 
-  // ///Parse Obj File
-  // string file = "untitled.obj";
-  // vector<string> lines = readLines(file);
+  ///Parse Obj File
+  string file = "Suzanne.obj";
+  vector<string> lines = readLines(file);
 
-  // vector<vector<string>> vectors = {};
-  // vector<vector<string>> uv = {};
-  // vector<vector<string>> normals = {};
-  // vector<vector<string>> faces = {};
+  vector<vector<float>> vectors = {};
+  vector<vector<float>> uv = {};
+  vector<vector<float>> normals = {};
+  vector<vector<string>> faces = {};
 
-  // int index = 0;
-  // vector<vector<string>> splitLines;
+  int index = 0;
+  vector<vector<string>> splitLines;
 
-  // //split each line
-  // for (const string& line : lines) {
-  //   index = 0;
-  //   vector<string> splitLine = split(line, ' ');
-  //   splitLines.push_back(splitLine);
-  // }
+  //split each line
+  for (const string& line : lines) {
+    index = 0;
+    vector<string> splitLine = split(line, ' ');
+    splitLines.push_back(splitLine);
+  }
 
-  // //sort obj file
-  // for (vector<string>& line : splitLines){
-  //   if(line.front() == "v")
-  //     vectors.push_back(line);
-  //   else if (line.front() == "vt")
-  //     uv.push_back(line);
-  //   else if (line.front() == "vn")
-  //     normals.push_back(line);
-  //   else if (line.front() == "f")
-  //     faces.push_back(line);
-  //   else
-  //     continue;
-  // }
+  //sort obj file
+  for (vector<string>& line : splitLines){
+    vector<float> temp = {};
+    if(line.front() == "v")
+    {
+      for (string x : line)
+      {
+        if (x != "v")
+          temp.push_back(stof(x));
+      }
+      vectors.push_back(temp);
+    }      
+    else if (line.front() == "vt")
+    {
+      for (string x : line)
+      {
+        if (x != "vt")
+          temp.push_back(stof(x));
+      }
+      uv.push_back(temp);
+    }      
+    else if (line.front() == "vn")
+    {
+      for (string x : line)
+      {
+        if (x != "vn")
+          temp.push_back(stof(x));
+      }
+      normals.push_back(temp);
+    }
+    else if (line.front() == "f")
+      faces.push_back(line);
+    else
+      continue;
+  }
 
-  // //setup faces
-  // vector<vector<string>> processedFaces = {};
+  //setup faces
+  vector<vector<string>> processedFaces = {};
 
-  // for (const vector<string> line : faces){
-  //   for(int i = 1; i < line.size(); i++ ){
-  //     processedFaces.push_back(split(line[i], '/'));  
-  // }
+  for (const vector<string> line : faces){
+    for(int i = 1; i < line.size(); i++ ){
+      processedFaces.push_back(split(line[i], '/'));  
+  }
 
-  // cout << processedFaces[2][0] << endl;
+  cout << processedFaces[2][0] << endl;
 
-  // //Create Triangles
-  // vector<Triangle> triangles = {};
+  //Create Triangles
   
-  // for (vector<string> face : processedFaces)
-  // {
-  //   Triangle triangle;
-  //   triangle.v_1 = Vector3(stof(vectors[stoi(processedFaces[0][0]) - 1][0]),
-  //                          stof(vectors[stoi(processedFaces[0][0]) - 1][1]),
-  //                          stof(vectors[stoi(processedFaces[0][0]) - 1][2]));
+  
+  for (vector<string> face : processedFaces)
+  {
+    Triangle triangle;
+    triangle.v_1 = Vector3(vectors[stoi(processedFaces[0][0]) - 1][0],
+                           vectors[stoi(processedFaces[0][0]) - 1][1],
+                           vectors[stoi(processedFaces[0][0]) - 1][2]);
 
-  //   triangle.v_2 = Vector3(stof(vectors[stoi(processedFaces[1][0]) - 1][0]),
-  //                          stof(vectors[stoi(processedFaces[1][0]) - 1][1]),
-  //                          stof(vectors[stoi(processedFaces[1][0]) - 1][2]));
+    triangle.v_2 = Vector3(vectors[stoi(processedFaces[1][0]) - 1][0],
+                           vectors[stoi(processedFaces[1][0]) - 1][1],
+                           vectors[stoi(processedFaces[1][0]) - 1][2]);
 
-  //   triangle.v_3 = Vector3(stof(vectors[stoi(processedFaces[2][0]) - 1][0]),
-  //                          stof(vectors[stoi(processedFaces[2][0]) - 1][1]),
-  //                          stof(vectors[stoi(processedFaces[2][0]) - 1][2]));
+    triangle.v_3 = Vector3(vectors[stoi(processedFaces[2][0]) - 1][0],
+                           vectors[stoi(processedFaces[2][0]) - 1][1],
+                           vectors[stoi(processedFaces[2][0]) - 1][2]);
 
-  //   triangle.vt_1 = Vector3(stof(uv[stoi(processedFaces[0][1]) - 1][0]),
-  //                           stof(uv[stoi(processedFaces[0][1]) - 1][1]),
-  //                           stof(uv[stoi(processedFaces[0][1]) - 1][2]));
+    triangle.vt_1 = Vector3(uv[stoi(processedFaces[0][1]) - 1][0],
+                            uv[stoi(processedFaces[0][1]) - 1][1],
+                            0);
 
-  //   triangle.vt_2 = Vector3(stof(uv[stoi(processedFaces[1][1]) - 1][0]),
-  //                           stof(uv[stoi(processedFaces[1][1]) - 1][1]),
-  //                           stof(uv[stoi(processedFaces[1][1]) - 1][2]));
+    triangle.vt_2 = Vector3(uv[stoi(processedFaces[1][1]) - 1][0],
+                            uv[stoi(processedFaces[1][1]) - 1][1],
+                            0);
 
-  //   triangle.vt_3 = Vector3(stof(uv[stoi(processedFaces[2][1]) - 1][0]),
-  //                           stof(uv[stoi(processedFaces[2][1]) - 1][1]),
-  //                           stof(uv[stoi(processedFaces[2][1]) - 1][2]));
+    triangle.vt_3 = Vector3(uv[stoi(processedFaces[2][1]) - 1][0],
+                            uv[stoi(processedFaces[2][1]) - 1][1],
+                            0);
 
-  //   triangle.vn_1 = Vector3(stof(normals[stoi(processedFaces[0][2]) - 1][0]),
-  //                           stof(normals[stoi(processedFaces[0][2]) - 1][1]),
-  //                           stof(normals[stoi(processedFaces[0][2]) - 1][2]));
+    triangle.vn_1 = Vector3(normals[stoi(processedFaces[0][2]) - 1][0],
+                            normals[stoi(processedFaces[0][2]) - 1][1],
+                            normals[stoi(processedFaces[0][2]) - 1][2]);
 
-  //   triangle.vn_2 = Vector3(stof(normals[stoi(processedFaces[1][2]) - 1][0]),
-  //                           stof(normals[stoi(processedFaces[1][2]) - 1][1]),
-  //                           stof(normals[stoi(processedFaces[1][2]) - 1][2]));
+    triangle.vn_2 = Vector3(normals[stoi(processedFaces[1][2]) - 1][0],
+                            normals[stoi(processedFaces[1][2]) - 1][1],
+                            normals[stoi(processedFaces[1][2]) - 1][2]);
 
-  //   triangle.vn_2 = Vector3(stof(normals[stoi(processedFaces[2][2]) - 1][0]),
-  //                           stof(normals[stoi(processedFaces[2][2]) - 1][1]),
-  //                           stof(normals[stoi(processedFaces[2][2]) - 1][2]));
+    triangle.vn_2 = Vector3(normals[stoi(processedFaces[2][2]) - 1][0],
+                            normals[stoi(processedFaces[2][2]) - 1][1],
+                            normals[stoi(processedFaces[2][2]) - 1][2]);
     
-  //   triangles.push_back(triangle);
-  // }
+    triangles.push_back(triangle);
+  }
 
   Vector3 camera_orgin = Vector3{0, 0, 1};
   Vector3 camera_lookat = Vector3{0, 0, 0};
@@ -325,4 +319,5 @@ int main()
   /// Write the final image as a png
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
   return 0;
+}
 }
