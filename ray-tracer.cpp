@@ -24,7 +24,7 @@ using namespace std;
   /// The 1d array for storing the pixel we have generated
   unsigned char pixels[w * h * 3];
 
-  Vector3 background_color = Vector3{0, 0, 255};
+  Vector3 background_color = Vector3{0, 0, 200};
   vector<Triangle> triangles = {};
 
   float trace_ray_distance(Vector3 orgin, Vector3 direction )
@@ -127,7 +127,7 @@ using namespace std;
           // I'm in the triangle
           closest_t = t;
 
-          Vector3 base_color = Vector3{255, 0, 0};
+          Vector3 base_color = Vector3{100, 0, 0};
           Vector3 light_direction = Vector3{.5, 1, .1}.normalize();
 
           Vector3 ambient = base_color * .1;
@@ -136,17 +136,21 @@ using namespace std;
           float strength = max(0.5f, light_direction.dot(normal));
 
           Vector3 diffuse = base_color * strength;
+          if(trace_ray_distance(collision_point + light_direction * .00001, light_direction) != INFINITY){
+            diffuse = Vector3{0,0,0};
+          }
 
 
-          Vector3 refelctive = Vector3{0,0,0};
+          Vector3 reflective = Vector3{0,0,0};
 
           if(true){
-            Vector3 refelctive_distance = direction - normal * 2 * normal.dot(direction);
+            Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
+            reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
             diffuse *= .5;
             ambient *= .5;
           }
 
-          Vector3 _color = ambient + diffuse + refelctive;
+          Vector3 _color = ambient + diffuse + reflective;
           color = _color;
         }
         
@@ -160,13 +164,8 @@ int main()
   /// You must uncomment the include and namespace lines above
   // cout << "Hello, world" << endl;
 
-  Vector3 temp = Vector3{0, 0, 0};
-  temp += Vector3{1, 1, 1};
-
-  cout << temp << endl;
-
   ///Parse Obj File
-  string file = "Cube.obj";
+  string file = "Cornellbox.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<float>> vectors = {};
@@ -273,7 +272,7 @@ int main()
   }
 }
 
-  Vector3 camera_orgin = Vector3{0, 0, 3};
+  Vector3 camera_orgin = Vector3{0, 0, .2};
   Vector3 camera_lookat = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
 
