@@ -14,149 +14,147 @@
 
 using namespace std;
 
-
 /// Width of the final image
-  const int w = 640;
+const int w = 640;
 
-  /// Height of the final image
-  const int h = 640;
+/// Height of the final image
+const int h = 640;
 
-  /// The 1d array for storing the pixel we have generated
-  unsigned char pixels[w * h * 3];
+/// The 1d array for storing the pixel we have generated
+unsigned char pixels[w * h * 3];
 
-  Vector3 background_color = Vector3{0, 0, 200};
-  vector<Triangle> triangles = {};
+Vector3 background_color = Vector3{0, 0, 200};
+vector<Triangle> triangles = {};
 
-  float trace_ray_distance(Vector3 orgin, Vector3 direction )
+float trace_ray_distance(Vector3 orgin, Vector3 direction)
+{
+  float closest_t = INFINITY;
+
+  for (const Triangle &triangle : triangles)
   {
-    float closest_t = INFINITY;
-    
-      for (const Triangle &triangle : triangles)
-      {
-        Vector3 edge_one = triangle.v_1 - triangle.v_2;
-        Vector3 edge_two = triangle.v_3 - triangle.v_2;
-        Vector3 p = edge_two.cross(edge_one);
-        Vector3 abc = p.normalize();
-        float d = -abc.dot(triangle.v_1);
+    Vector3 edge_one = triangle.v_1 - triangle.v_2;
+    Vector3 edge_two = triangle.v_3 - triangle.v_2;
+    Vector3 p = edge_two.cross(edge_one);
+    Vector3 abc = p.normalize();
+    float d = -abc.dot(triangle.v_1);
 
-        float t = -(abc.dot(orgin) + d) / abc.dot(direction);
+    float t = -(abc.dot(orgin) + d) / abc.dot(direction);
 
-        if(t > closest_t || t <= 0)
-          continue;
+    if (t > closest_t || t <= 0)
+      continue;
 
-        Vector3 collision_point = direction * t + orgin;
+    Vector3 collision_point = direction * t + orgin;
 
-        Vector3 minus_one = collision_point - triangle.v_1;
-        Vector3 minus_two = collision_point - triangle.v_2;
-        Vector3 minus_three = collision_point - triangle.v_3;
+    Vector3 minus_one = collision_point - triangle.v_1;
+    Vector3 minus_two = collision_point - triangle.v_2;
+    Vector3 minus_three = collision_point - triangle.v_3;
 
-        float triangle_area = p.length() / 2;
+    float triangle_area = p.length() / 2;
 
-        float area_one = minus_two.cross(minus_three).length() / 2;
-        float area_two = minus_three.cross(minus_one).length() / 2;
-        float area_three = minus_one.cross(minus_two).length() / 2;
+    float area_one = minus_two.cross(minus_three).length() / 2;
+    float area_two = minus_three.cross(minus_one).length() / 2;
+    float area_three = minus_one.cross(minus_two).length() / 2;
 
-        float u = area_one / triangle_area;
-        float v = area_two / triangle_area;
-        float a = area_three / triangle_area;
+    float u = area_one / triangle_area;
+    float v = area_two / triangle_area;
+    float a = area_three / triangle_area;
 
-        float sum = u + v + a;
+    float sum = u + v + a;
 
-        float diff = abs(1 - sum);
+    float diff = abs(1 - sum);
 
-        if (diff > 0.00001 || isnan(sum))
-        {
-          // I'm not in the triangle
-        }
-        else
-        {
-          // I'm in the triangle
-          closest_t = t;
-        }
-      }
-      return closest_t;
+    if (diff > 0.00001 || isnan(sum))
+    {
+      // I'm not in the triangle
     }
-
-  Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 2 )
-  {
-    Vector3 color = Vector3{background_color.x, background_color.y, background_color.z};
-    if(bounces <= 0)
-      return background_color;
-
-    float closest_t = 1000000;
-    
-      for (const Triangle &triangle : triangles)
-      {
-        Vector3 edge_one = triangle.v_1 - triangle.v_2;
-        Vector3 edge_two = triangle.v_3 - triangle.v_2;
-        Vector3 p = edge_two.cross(edge_one);
-        Vector3 abc = p.normalize();
-        float d = -abc.dot(triangle.v_1);
-
-        float t = -(abc.dot(orgin) + d) / abc.dot(direction);
-
-        if(t > closest_t || t <= 0)
-          continue;
-
-        Vector3 collision_point = direction * t + orgin;
-
-        Vector3 minus_one = collision_point - triangle.v_1;
-        Vector3 minus_two = collision_point - triangle.v_2;
-        Vector3 minus_three = collision_point - triangle.v_3;
-
-        float triangle_area = p.length() / 2;
-
-        float area_one = minus_two.cross(minus_three).length() / 2;
-        float area_two = minus_three.cross(minus_one).length() / 2;
-        float area_three = minus_one.cross(minus_two).length() / 2;
-
-        float u = area_one / triangle_area;
-        float v = area_two / triangle_area;
-        float a = area_three / triangle_area;
-
-        float sum = u + v + a;
-
-        float diff = abs(1 - sum);
-
-        if (diff > 0.00001 || isnan(sum))
-        {
-          // I'm not in the triangle
-        }
-        else
-        {
-          // I'm in the triangle
-          closest_t = t;
-
-          Vector3 base_color = Vector3{100, 0, 0};
-          Vector3 light_direction = Vector3{.5, 1, .1}.normalize();
-
-          Vector3 ambient = base_color * .1;
-          Vector3 normal = p.normalize();
-
-          float strength = max(0.5f, light_direction.dot(normal));
-
-          Vector3 diffuse = base_color * strength;
-          if(trace_ray_distance(collision_point + light_direction * .00001, light_direction) != INFINITY){
-            diffuse = Vector3{0,0,0};
-          }
-
-
-          Vector3 reflective = Vector3{0,0,0};
-
-          if(true){
-            Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
-            reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
-            diffuse *= .5;
-            ambient *= .5;
-          }
-
-          Vector3 _color = ambient + diffuse + reflective;
-          color = _color;
-        }
-        
-      }
-      return color;
+    else
+    {
+      // I'm in the triangle
+      closest_t = t;
+    }
   }
+  return closest_t;
+}
+
+Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 2)
+{
+  Vector3 color = Vector3{background_color.x, background_color.y, background_color.z};
+  if (bounces <= 0)
+    return background_color;
+
+  float closest_t = 1000000;
+
+  for (const Triangle &triangle : triangles)
+  {
+    Vector3 edge_one = triangle.v_1 - triangle.v_2;
+    Vector3 edge_two = triangle.v_3 - triangle.v_2;
+    Vector3 p = edge_two.cross(edge_one);
+    Vector3 abc = p.normalize();
+    float d = -abc.dot(triangle.v_1);
+
+    float t = -(abc.dot(orgin) + d) / abc.dot(direction);
+
+    if (t > closest_t || t <= 0)
+      continue;
+
+    Vector3 collision_point = direction * t + orgin;
+
+    Vector3 minus_one = collision_point - triangle.v_1;
+    Vector3 minus_two = collision_point - triangle.v_2;
+    Vector3 minus_three = collision_point - triangle.v_3;
+
+    float triangle_area = p.length() / 2;
+
+    float area_one = minus_two.cross(minus_three).length() / 2;
+    float area_two = minus_three.cross(minus_one).length() / 2;
+    float area_three = minus_one.cross(minus_two).length() / 2;
+
+    float u = area_one / triangle_area;
+    float v = area_two / triangle_area;
+    float a = area_three / triangle_area;
+
+    float sum = u + v + a;
+
+    float diff = abs(1 - sum);
+
+    if (diff > 0.00001 || isnan(sum))
+    {
+      // I'm not in the triangle
+    }
+    else
+    {
+      // I'm in the triangle
+      closest_t = t;
+
+      Vector3 base_color = Vector3{100, 0, 0};
+      Vector3 light_direction = Vector3{.5, 1, .1}.normalize();
+
+      Vector3 ambient = base_color * .1;
+      Vector3 normal = p.normalize();
+
+      float strength = max(0.f, light_direction.dot(normal));
+
+      Vector3 diffuse = base_color * strength;
+      if (trace_ray_distance(collision_point, light_direction) != INFINITY){
+        diffuse = Vector3{0, 0, 0};
+      }
+
+      Vector3 reflective = Vector3{0, 0, 0};
+
+      if (true)
+      {
+        Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
+        reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
+        diffuse *= .5;
+        ambient *= .5;
+      }
+
+      Vector3 _color = ambient + diffuse + reflective;
+      color = _color;
+    }
+  }
+  return color;
+}
 
 int main()
 {
@@ -164,8 +162,8 @@ int main()
   /// You must uncomment the include and namespace lines above
   // cout << "Hello, world" << endl;
 
-  ///Parse Obj File
-  string file = "Train.obj";
+  /// Parse Obj File
+  string file = "CornellBox.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<float>> vectors = {};
@@ -176,17 +174,19 @@ int main()
   int index = 0;
   vector<vector<string>> splitLines;
 
-  //split each line
-  for (const string& line : lines) {
+  // split each line
+  for (const string &line : lines)
+  {
     index = 0;
     vector<string> splitLine = split(line, ' ');
     splitLines.push_back(splitLine);
   }
 
-  //sort obj file
-  for (vector<string>& line : splitLines){
+  // sort obj file
+  for (vector<string> &line : splitLines)
+  {
     vector<float> temp = {};
-    if(line.front() == "v")
+    if (line.front() == "v")
     {
       for (string x : line)
       {
@@ -194,7 +194,7 @@ int main()
           temp.push_back(stof(x));
       }
       vectors.push_back(temp);
-    }      
+    }
     else if (line.front() == "vt")
     {
       for (string x : line)
@@ -203,7 +203,7 @@ int main()
           temp.push_back(stof(x));
       }
       uv.push_back(temp);
-    }      
+    }
     else if (line.front() == "vn")
     {
       for (string x : line)
@@ -219,60 +219,62 @@ int main()
       continue;
   }
 
-  //setup faces
-  
-  for (const vector<string> line : faces){
+  // setup faces
+
+  for (const vector<string> line : faces)
+  {
     vector<vector<string>> processedFaces = {};
-    for(int i = 1; i < line.size(); i++ ){
-      processedFaces.push_back(split(line[i], '/')); 
+    for (int i = 1; i < line.size(); i++)
+    {
+      processedFaces.push_back(split(line[i], '/'));
     }
 
-  //Create Triangles
-    
-  for (int i = 1; i < (int)processedFaces.size() - 1; i++)
-  {  
-    Triangle triangle;
-    triangle.v_1 = Vector3(vectors[stoi(processedFaces[0][0]) - 1][0],
-                          vectors[stoi(processedFaces[0][0]) - 1][1],
-                          vectors[stoi(processedFaces[0][0]) - 1][2]);
+    // Create Triangles
 
-    triangle.v_2 = Vector3(vectors[stoi(processedFaces[i][0]) - 1][0],
-                          vectors[stoi(processedFaces[i][0]) - 1][1],
-                          vectors[stoi(processedFaces[i][0]) - 1][2]);
+    for (int i = 1; i < (int)processedFaces.size() - 1; i++)
+    {
+      Triangle triangle;
+      triangle.v_1 = Vector3(vectors[stoi(processedFaces[0][0]) - 1][0],
+                             vectors[stoi(processedFaces[0][0]) - 1][1],
+                             vectors[stoi(processedFaces[0][0]) - 1][2]);
 
-    triangle.v_3 = Vector3(vectors[stoi(processedFaces[i+1][0]) - 1][0],
-                          vectors[stoi(processedFaces[i+1][0]) - 1][1],
-                          vectors[stoi(processedFaces[i+1][0]) - 1][2]);
+      triangle.v_2 = Vector3(vectors[stoi(processedFaces[i][0]) - 1][0],
+                             vectors[stoi(processedFaces[i][0]) - 1][1],
+                             vectors[stoi(processedFaces[i][0]) - 1][2]);
 
-    triangle.vt_1 = Vector3(uv[stoi(processedFaces[0][1]) - 1][0],
-                            uv[stoi(processedFaces[0][1]) - 1][1],
-                            0);
+      triangle.v_3 = Vector3(vectors[stoi(processedFaces[i + 1][0]) - 1][0],
+                             vectors[stoi(processedFaces[i + 1][0]) - 1][1],
+                             vectors[stoi(processedFaces[i + 1][0]) - 1][2]);
 
-    triangle.vt_2 = Vector3(uv[stoi(processedFaces[i][1]) - 1][0],
-                            uv[stoi(processedFaces[i][1]) - 1][1],
-                            0);
+      triangle.vt_1 = Vector3(uv[stoi(processedFaces[0][1]) - 1][0],
+                              uv[stoi(processedFaces[0][1]) - 1][1],
+                              0);
 
-    triangle.vt_3 = Vector3(uv[stoi(processedFaces[i+1][1]) - 1][0],
-                            uv[stoi(processedFaces[i+1][1]) - 1][1],
-                            0);
+      triangle.vt_2 = Vector3(uv[stoi(processedFaces[i][1]) - 1][0],
+                              uv[stoi(processedFaces[i][1]) - 1][1],
+                              0);
 
-    triangle.vn_1 = Vector3(normals[stoi(processedFaces[0][2]) - 1][0],
-                            normals[stoi(processedFaces[0][2]) - 1][1],
-                            normals[stoi(processedFaces[0][2]) - 1][2]);
+      triangle.vt_3 = Vector3(uv[stoi(processedFaces[i + 1][1]) - 1][0],
+                              uv[stoi(processedFaces[i + 1][1]) - 1][1],
+                              0);
 
-    triangle.vn_2 = Vector3(normals[stoi(processedFaces[i][2]) - 1][0],
-                            normals[stoi(processedFaces[i][2]) - 1][1],
-                            normals[stoi(processedFaces[i][2]) - 1][2]);
+      triangle.vn_1 = Vector3(normals[stoi(processedFaces[0][2]) - 1][0],
+                              normals[stoi(processedFaces[0][2]) - 1][1],
+                              normals[stoi(processedFaces[0][2]) - 1][2]);
 
-    triangle.vn_3 = Vector3(normals[stoi(processedFaces[i+1][2]) - 1][0],
-                            normals[stoi(processedFaces[i+1][2]) - 1][1],
-                            normals[stoi(processedFaces[i+1][2]) - 1][2]);
-    
-    triangles.push_back(triangle);
+      triangle.vn_2 = Vector3(normals[stoi(processedFaces[i][2]) - 1][0],
+                              normals[stoi(processedFaces[i][2]) - 1][1],
+                              normals[stoi(processedFaces[i][2]) - 1][2]);
+
+      triangle.vn_3 = Vector3(normals[stoi(processedFaces[i + 1][2]) - 1][0],
+                              normals[stoi(processedFaces[i + 1][2]) - 1][1],
+                              normals[stoi(processedFaces[i + 1][2]) - 1][2]);
+
+      triangles.push_back(triangle);
+    }
   }
-}
 
-  Vector3 camera_orgin = Vector3{0, 0, 5};
+  Vector3 camera_orgin = Vector3{0, 0, 1};
   Vector3 camera_lookat = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
 
@@ -306,10 +308,10 @@ int main()
       g = color.y;
       b = color.z;
 
-        /// Assign the r, g, and b values to the pixel at index
-        pixels[index] = r;
-        pixels[index + 1] = g;
-        pixels[index + 2] = b;
+      /// Assign the r, g, and b values to the pixel at index
+      pixels[index] = r;
+      pixels[index + 1] = g;
+      pixels[index + 2] = b;
     }
   }
 
