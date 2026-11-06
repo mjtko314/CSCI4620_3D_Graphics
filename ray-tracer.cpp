@@ -165,7 +165,7 @@ int main()
   // cout << "Hello, world" << endl;
 
   ///Parse Obj File
-  string file = "Cornellbox.obj";
+  string file = "Train.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<float>> vectors = {};
@@ -272,7 +272,7 @@ int main()
   }
 }
 
-  Vector3 camera_orgin = Vector3{0, 0, .2};
+  Vector3 camera_orgin = Vector3{0, 0, 5};
   Vector3 camera_lookat = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
 
