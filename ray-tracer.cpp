@@ -11,6 +11,7 @@
 #include "Vector3.hpp"
 #include "Triangle.hpp"
 #include "file_util.h"
+#include <random>
 
 using namespace std;
 
@@ -278,6 +279,17 @@ int main()
   Vector3 camera_lookat = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
 
+  ///Generate Offset
+  int samples = 4;
+  
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
+  std::uniform_real_distribution<double> distrib(-0.5, 0.5);
+  float x_offset = distrib(gen);
+  float y_offset = distrib(gen);
+  std::cout << "Random decimal: " << x_offset << "\n";
+
   /// Loop over each line doing down
   for (int y = 0; y < h; y++)
   {
@@ -296,9 +308,9 @@ int main()
 
       /// The value of the blue channel (0-255)
       unsigned char b = background_color.z;
-
+      
       Vector3 target{
-          x / (float)w * 2 - 1, -(y / (float)h * 2 - 1), 0};
+          (x + x_offset) / (float)w * 2 - 1, -((y+y_offset) / (float)h * 2 - 1), 0};
 
       Vector3 ray = (target - camera_orgin).normalize();
 
