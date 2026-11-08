@@ -24,7 +24,7 @@ const int h = 640;
 /// The 1d array for storing the pixel we have generated
 unsigned char pixels[w * h * 3];
 
-Vector3 background_color = Vector3{0, 0, 200};
+Vector3 background_color = Vector3{0, 255, 0};
 vector<Triangle> triangles = {};
 
 float trace_ray_distance(Vector3 orgin, Vector3 direction)
@@ -296,6 +296,9 @@ int main()
     /// While going down, loop over every pixel going right
     for (int x = 0; x < w; x++)
     {
+      for (int s = 0; s < samples; s++){
+        continue;
+      }
 
       /// Figure out our index in the 1d array of pixels
       int index = y * w * 3 + x * 3;
