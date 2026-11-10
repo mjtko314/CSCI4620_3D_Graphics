@@ -164,7 +164,7 @@ int main()
   // cout << "Hello, world" << endl;
 
   /// Parse Obj File
-  string file = "CornellBox.obj";
+  string file = "Train.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<float>> vectors = {};
@@ -278,6 +278,14 @@ int main()
   Vector3 camera_orgin = Vector3{0, 0, 1};
   Vector3 camera_lookat = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
+  Vector3 camera_offset = Vector3{0,0,0};
+
+  Vector3 camera_y = camera_up;
+  Vector3 camera_z = (camera_lookat - camera_orgin).normalize();
+  Vector3 camera_x = camera_z.cross(camera_y);
+
+  vector<vector<float>> cobm;
+
 
   ///Generate Offset
   int samples = 4;
@@ -313,7 +321,7 @@ int main()
       unsigned char b = background_color.z;
       
       Vector3 target{
-          (x + x_offset) / (float)w * 2 - 1, -((y+y_offset) / (float)h * 2 - 1), 0};
+          (x) / (float)w * 2 - 1, -((y) / (float)h * 2 - 1), 0};
 
       Vector3 ray = (target - camera_orgin).normalize();
 
