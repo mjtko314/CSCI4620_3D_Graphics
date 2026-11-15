@@ -12,6 +12,7 @@
 #include "Triangle.hpp"
 #include "file_util.h"
 #include <random>
+#include "Matrix.hpp"
 
 using namespace std;
 
@@ -24,7 +25,7 @@ const int h = 640;
 /// The 1d array for storing the pixel we have generated
 unsigned char pixels[w * h * 3];
 
-Vector3 background_color = Vector3{0, 255, 0};
+Vector3 background_color = Vector3{250, 75, 0};
 vector<Triangle> triangles = {};
 
 float trace_ray_distance(Vector3 orgin, Vector3 direction)
@@ -77,7 +78,7 @@ float trace_ray_distance(Vector3 orgin, Vector3 direction)
   return closest_t;
 }
 
-Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 2)
+Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 1)
 {
   Vector3 color = Vector3{background_color.x, background_color.y, background_color.z};
   if (bounces <= 0)
@@ -159,12 +160,27 @@ Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 2)
 
 int main()
 {
+  //setup camera
+  Vector3 camera_orgin = Vector3{0, 18, 1};
+  Vector3 camera_lookat = Vector3{0, 0, 0};
+  Vector3 camera_up = Vector3{0, 1, 0};
+  Vector3 camera_offset = Vector3{0, 0, 0};
+
+  Vector3 camera_y = camera_up;
+  Vector3 camera_z = (camera_lookat - camera_orgin).normalize();
+  Vector3 camera_x = camera_z.cross(camera_y);
+
+  Matrix camera_matrix = Matrix{camera_x.x, camera_x.y, camera_x.z, camera_offset.x,
+                                camera_y.x, camera_y.y, camera_y.z, camera_offset.y,
+                                camera_z.x, camera_z.y, camera_z.z, camera_offset.z,
+                                0,          0,          0,          0,              };
+
   /// Example of how to debug with couts.
   /// You must uncomment the include and namespace lines above
   // cout << "Hello, world" << endl;
 
   /// Parse Obj File
-  string file = "Train.obj";
+  string file = "Sphere.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<float>> vectors = {};
@@ -194,6 +210,8 @@ int main()
         if (x != "v")
           temp.push_back(stof(x));
       }
+      temp.push_back(1);
+      vector<float> temp2 = camera_matrix.multiply(temp);
       vectors.push_back(temp);
     }
     else if (line.front() == "vt")
@@ -274,15 +292,6 @@ int main()
       triangles.push_back(triangle);
     }
   }
-
-  Vector3 camera_orgin = Vector3{0, 0, 1};
-  Vector3 camera_lookat = Vector3{0, 0, 0};
-  Vector3 camera_up = Vector3{0, 1, 0};
-  Vector3 camera_offset = Vector3{0,0,0};
-
-  Vector3 camera_y = camera_up;
-  Vector3 camera_z = (camera_lookat - camera_orgin).normalize();
-  Vector3 camera_x = camera_z.cross(camera_y);
 
   vector<vector<float>> cobm;
 
