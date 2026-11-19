@@ -137,7 +137,8 @@ Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 1)
       float strength = max(0.f, light_direction.dot(normal));
 
       Vector3 diffuse = base_color * strength;
-      if (trace_ray_distance(collision_point, light_direction) != INFINITY){
+      if (trace_ray_distance(collision_point, light_direction) != INFINITY)
+      {
         diffuse = Vector3{0, 0, 0};
       }
 
@@ -160,8 +161,8 @@ Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 1)
 
 int main()
 {
-  //setup camera
-  Vector3 camera_orgin = Vector3{0, 18, 1};
+  // setup camera
+  Vector3 camera_orgin = Vector3{0, 0, 0.5f};
   Vector3 camera_lookat = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
   Vector3 camera_offset = Vector3{0, 0, 0};
@@ -170,17 +171,15 @@ int main()
   Vector3 camera_z = (camera_lookat - camera_orgin).normalize();
   Vector3 camera_x = camera_z.cross(camera_y);
 
-  Matrix camera_matrix = Matrix{camera_x.x, camera_x.y, camera_x.z, camera_offset.x,
-                                camera_y.x, camera_y.y, camera_y.z, camera_offset.y,
-                                camera_z.x, camera_z.y, camera_z.z, camera_offset.z,
-                                0,          0,          0,          0,              };
-
-  /// Example of how to debug with couts.
-  /// You must uncomment the include and namespace lines above
-  // cout << "Hello, world" << endl;
+  Matrix camera_matrix = Matrix{
+      camera_x.x, camera_x.y, camera_x.z, camera_offset.x, //
+      camera_y.x, camera_y.y, camera_y.z, camera_offset.y, //
+      camera_z.x, camera_z.y, camera_z.z, camera_offset.z, //
+      0,          0,          0,          0, //
+  };
 
   /// Parse Obj File
-  string file = "Sphere.obj";
+  string file = "objs/zOffsetSphere.obj";
   vector<string> lines = readLines(file);
 
   vector<vector<float>> vectors = {};
@@ -295,17 +294,15 @@ int main()
 
   vector<vector<float>> cobm;
 
-
-  ///Generate Offset
+  /// Generate Offset
   int samples = 4;
-  
+
   std::random_device rd;
   std::mt19937 gen(rd());
 
   std::uniform_real_distribution<double> distrib(-0.5, 0.5);
-  float x_offset = distrib(gen);
-  float y_offset = distrib(gen);
-  std::cout << "Random decimal: " << x_offset << "\n";
+  float x_offset;
+  float y_offset;
 
   /// Loop over each line doing down
   for (int y = 0; y < h; y++)
@@ -313,7 +310,39 @@ int main()
     /// While going down, loop over every pixel going right
     for (int x = 0; x < w; x++)
     {
-      for (int s = 0; s < samples; s++){
+      for (int s = 0; s < samples; s++)
+      {
+        // x_offset = distrib(gen);
+        // y_offset = distrib(gen);
+
+        // /// Figure out our index in the 1d array of pixels
+        // int index = y * w * 3 + x * 3;
+
+        // /// The value of the red channel (0-255)
+        // unsigned char r = background_color.x;
+
+        // /// The value of the green channel (0-255)
+        // unsigned char g = background_color.y;
+
+        // /// The value of the blue channel (0-255)
+        // unsigned char b = background_color.z;
+
+        // Vector3 target{
+        //     (x + x_offset) / (float)w * 2 - 1, -((y + y_offset) / (float)h * 2 - 1), 0};
+
+        // Vector3 ray = (target - camera_orgin).normalize();
+
+        // Vector3 color = trace_ray(camera_orgin, ray);
+        // if (s == 0){
+        //   r = color.x;
+        //   g = color.y;
+        //   b = color.z;
+        // }
+        // else{
+        //   r += color.x;
+        //   g += color.y;
+        //   b += color.z;
+        // }
         continue;
       }
 
@@ -328,9 +357,19 @@ int main()
 
       /// The value of the blue channel (0-255)
       unsigned char b = background_color.z;
-      
+
+      Vector3 rightHandVector = ((camera_lookat - camera_orgin).cross(camera_up)).normalize();
+
+      Vector3 targetP1{
+        rightHandVector.operator*=((x) / (float)w * 2 - 1)
+      };
+
+      Vector3 targetP2{
+        camera_up.operator*=(-((y) / (float)h * 2 - 1))
+      };
+
       Vector3 target{
-          (x) / (float)w * 2 - 1, -((y) / (float)h * 2 - 1), 0};
+          targetP1 + targetP2 + camera_lookat};
 
       Vector3 ray = (target - camera_orgin).normalize();
 
