@@ -162,7 +162,7 @@ Vector3 trace_ray(Vector3 orgin, Vector3 direction, int bounces = 1)
 int main()
 {
   // setup camera
-  Vector3 camera_orgin = Vector3{0, 0, 0.5f};
+  Vector3 camera_orgin = Vector3{0, 0, 2};
   Vector3 camera_lookat = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
   Vector3 camera_offset = Vector3{0, 0, 0};
@@ -172,10 +172,22 @@ int main()
   Vector3 camera_x = camera_z.cross(camera_y);
 
   Matrix camera_matrix = Matrix{
-      camera_x.x, camera_x.y, camera_x.z, camera_offset.x, //
-      camera_y.x, camera_y.y, camera_y.z, camera_offset.y, //
-      camera_z.x, camera_z.y, camera_z.z, camera_offset.z, //
-      0,          0,          0,          0, //
+      camera_x.x,
+      camera_x.y,
+      camera_x.z,
+      camera_offset.x, //
+      camera_y.x,
+      camera_y.y,
+      camera_y.z,
+      camera_offset.y, //
+      camera_z.x,
+      camera_z.y,
+      camera_z.z,
+      camera_offset.z, //
+      0,
+      0,
+      0,
+      0, //
   };
 
   /// Parse Obj File
@@ -310,79 +322,57 @@ int main()
     /// While going down, loop over every pixel going right
     for (int x = 0; x < w; x++)
     {
+       /// The value of the red channel (0-255)
+        float r = background_color.x;
+
+        /// The value of the green channel (0-255)
+        float g = background_color.y;
+
+        /// The value of the blue channel (0-255)
+        float b = background_color.z;
+
+        /// Figure out our index in the 1d array of pixels
+        int index = y * w * 3 + x * 3; 
+        
+        Vector3 rightHandVector = ((camera_lookat - camera_orgin).cross(camera_up)).normalize();
       for (int s = 0; s < samples; s++)
       {
-        // x_offset = distrib(gen);
-        // y_offset = distrib(gen);
+        x_offset = distrib(gen);
+        y_offset = distrib(gen);
 
-        // /// Figure out our index in the 1d array of pixels
-        // int index = y * w * 3 + x * 3;
+        
 
-        // /// The value of the red channel (0-255)
-        // unsigned char r = background_color.x;
+        Vector3 targetP1{
+            rightHandVector * ((x + x_offset) / (float)w * 2 - 1)};
 
-        // /// The value of the green channel (0-255)
-        // unsigned char g = background_color.y;
+        Vector3 targetP2{
+            camera_up * (-((y + y_offset) / (float)h * 2 - 1))};
 
-        // /// The value of the blue channel (0-255)
-        // unsigned char b = background_color.z;
+        Vector3 target{
+            targetP1 + targetP2 + camera_lookat};
 
-        // Vector3 target{
-        //     (x + x_offset) / (float)w * 2 - 1, -((y + y_offset) / (float)h * 2 - 1), 0};
+        Vector3 ray = (target - camera_orgin).normalize();
 
-        // Vector3 ray = (target - camera_orgin).normalize();
+        Vector3 color = trace_ray(camera_orgin, ray);
 
-        // Vector3 color = trace_ray(camera_orgin, ray);
-        // if (s == 0){
-        //   r = color.x;
-        //   g = color.y;
-        //   b = color.z;
-        // }
-        // else{
-        //   r += color.x;
-        //   g += color.y;
-        //   b += color.z;
-        // }
-        continue;
+        if (s == 0){
+          r = color.x;
+          g = color.y;
+          b = color.z;
+        }
+        else{
+          r += color.x;
+          g += color.y;
+          b += color.z;
+        }
+        
+
       }
 
-      /// Figure out our index in the 1d array of pixels
-      int index = y * w * 3 + x * 3;
-
-      /// The value of the red channel (0-255)
-      unsigned char r = background_color.x;
-
-      /// The value of the green channel (0-255)
-      unsigned char g = background_color.y;
-
-      /// The value of the blue channel (0-255)
-      unsigned char b = background_color.z;
-
-      Vector3 rightHandVector = ((camera_lookat - camera_orgin).cross(camera_up)).normalize();
-
-      Vector3 targetP1{
-        rightHandVector.operator*=((x) / (float)w * 2 - 1)
-      };
-
-      Vector3 targetP2{
-        camera_up.operator*=(-((y) / (float)h * 2 - 1))
-      };
-
-      Vector3 target{
-          targetP1 + targetP2 + camera_lookat};
-
-      Vector3 ray = (target - camera_orgin).normalize();
-
-      Vector3 color = trace_ray(camera_orgin, ray);
-
-      r = color.x;
-      g = color.y;
-      b = color.z;
-
       /// Assign the r, g, and b values to the pixel at index
-      pixels[index] = r;
-      pixels[index + 1] = g;
-      pixels[index + 2] = b;
+      pixels[index] = r / samples;
+      pixels[index + 1] = g/ samples;
+      pixels[index + 2] = b / samples;
     }
   }
 
