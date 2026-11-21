@@ -340,8 +340,6 @@ int main()
         x_offset = distrib(gen);
         y_offset = distrib(gen);
 
-        
-
         Vector3 targetP1{
             rightHandVector * ((x + x_offset) / (float)w * 2 - 1)};
 
